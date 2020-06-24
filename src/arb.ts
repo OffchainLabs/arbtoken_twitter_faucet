@@ -12,7 +12,7 @@ const ethereumProvider = new ethers.providers.JsonRpcProvider(env.ethProviderUrl
 const arbProvider = new ArbProvider(
     env.arbProviderUrl,
     ethereumProvider,
-    "https://104.248.7.183:1237",
+    env.arbValidatorUrl,
     true
   );
 
