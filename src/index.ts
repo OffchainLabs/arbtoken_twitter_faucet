@@ -8,12 +8,9 @@ import bodyParser from 'body-parser'
 import morgan from 'morgan'
 import env from "./constants";
 const app = express()
+const https = require('https')
+const fs = require('fs')
 
-if (process.env.NODE_ENV === 'dev'){
-    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
-} else {
-    require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
-}
 
 
 
@@ -58,7 +55,13 @@ app.get('/ping', (req, res)=>{
     res.send('pong')
 })
 
-app.listen(env.port, () => console.log(`Listening on port ${env.port}`))
+
+const server =  https.createServer({
+    key: fs.readFileSync(process.env.SSL_KEY_PATH, 'ascii')
+  , cert: fs.readFileSync(process.env.SSL_CERT_PATH, 'ascii') // a PEM containing the SERVER and ALL INTERMEDIATES
+  }, app);
+
+server.listen(env.port, () => console.log(`Listening on port ${env.port}`))
 
 
 
