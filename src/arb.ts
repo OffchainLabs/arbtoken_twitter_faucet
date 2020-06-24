@@ -12,7 +12,7 @@ const ethereumProvider = new ethers.providers.JsonRpcProvider(env.ethProviderUrl
 const arbProvider = new ArbProvider(
     env.arbProviderUrl,
     ethereumProvider,
-    "http://104.248.7.183:1237",
+    "https://104.248.7.183:1237",
     true
   );
 
@@ -57,7 +57,7 @@ export const getWalletEthBalance = async (): Promise<ethers.utils.BigNumber> => 
 }
 
 export const getAssertion = async (txHash: string): Promise<string | null> => {
-	let result = await arbProvider.getMessageResult(txHash)
+	const result = await arbProvider.getMessageResult(txHash)
 	if (!result) {
 		return null
 	}
