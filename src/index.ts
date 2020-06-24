@@ -21,7 +21,12 @@ app.use(cors())
 app.use(bodyParser())
 app.use(morgan('combined'));
 
-app.post('/funds', (req, res) => {
+/* nedb' autoload flag should, in theory take care of loading db, but seeing stale lookups after insert for some reason. hence: */
+const loadDB = (req, res, next)=>{
+    db.loadDatabase(next)
+}
+
+app.post('/funds',loadDB, (req, res) => {
     const { address, token } = req.body
     const targetAddress = extractAddress(address)
 
