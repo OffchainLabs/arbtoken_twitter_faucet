@@ -41,9 +41,9 @@ app.post('/funds',loadDB, (req, res) => {
             return res.status(500).json('Rate limit exceeded')
         }
         try {
-            const txn = await send(targetAddress)
+            send(targetAddress)
             db.update(tokenRecord, {...tokenRecord,  requests: tokenRecord.requests + 1 } )
-            res.json(txn)
+            res.json(true)
         } catch (err) {
             return res.status(500).json(`Failed to transfer funds, ${err.toString()}`)
         }
