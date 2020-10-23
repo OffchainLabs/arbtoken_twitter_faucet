@@ -1,79 +1,21 @@
 import { startStream, reply } from './twitter'
-import { transfer, resetFaucet, getAssertion, getTokenBalance, getEthBalance, getWalletEthBalance, getWalletAddress, getFaucetAddress } from './arb'
+import { transfer, resetFaucet, getTokenBalance, getEthBalance, getWalletEthBalance, getWalletAddress, getFaucetAddress } from './arb'
 import { ethers } from 'ethers'
 import express from 'express'
-import db from './db'
-const cors = require('cors')
-import bodyParser from 'body-parser'
-import morgan from 'morgan'
-import env from "./constants";
-const app = express()
-const https = require('https')
-const fs = require('fs')
 
 
-
-
-app.use(cors())
-app.use(bodyParser())
-app.use(morgan('combined'));
-
-/* nedb' autoload flag should, in theory take care of loading db, but seeing stale lookups after insert for some reason. hence: */
-const loadDB = (req, res, next)=>{
-    db.loadDatabase(next)
-}
-
-app.post('/funds',loadDB, (req, res) => {
-    const { address, token } = req.body
-    const targetAddress = extractAddress(address)
-
-    db.findOne({ token }, async(err, tokenRecord) => {
-        if(err){
-            return res.status(500).json(`Error: ${err.toString()}`)
-        }
-        if (!tokenRecord){
-            return res.status(500).json('Invalid access token')
-        }
-        if (!targetAddress){
-            return res.status(500).json('Invalid address')
-        }
-        if (tokenRecord.requests > 20){
-            return res.status(500).json('Rate limit exceeded')
-        }
-        try {
-            send(targetAddress)
-            db.update(tokenRecord, {...tokenRecord,  requests: tokenRecord.requests + 1 } )
-            res.json(true)
-        } catch (err) {
-            return res.status(500).json(`Failed to transfer funds, ${err.toString()}`)
-        }
-
-      });
-})
-
-app.get('/ping', (req, res)=>{
-    res.send('pong')
-})
-
-
-const server =  https.createServer({
-    key: fs.readFileSync(process.env.SSL_KEY_PATH, 'ascii')
-  , cert: fs.readFileSync(process.env.SSL_CERT_PATH, 'ascii') // a PEM containing the SERVER and ALL INTERMEDIATES
-  }, app);
-
-server.listen(env.port, () => console.log(`Listening on port ${env.port}`))
-
-
-
-
-//  simple dos guard
+//  simple DOS guard
 let recipientHash = {}
 setInterval(()=>{
     recipientHash = {}
 }, 1000 * 60 * 30)
 
 startStream( async (tweet)=> {
-    console.info(tweet && `incoming tweet: ${tweet.text}`);
+    const { id: userId, screen_name }  = tweet.user;
+    console.info('')
+    console.info('*** *** *** *** *** *** *** *** *** *** ***')
+    console.info(`Incoming tweet from @${screen_name}:`)
+    console.info(`Text: '${tweet.text}'`);
 
     if (!isFaucetRequest(tweet.text)){
         console.info('not a faucet request')
@@ -83,10 +25,8 @@ startStream( async (tweet)=> {
     const address = extractAddress(tweet.text)
     if (!address){
         console.info('no address')
-        return reply("Missing Address!", tweet)
+        return reply("Missing Address — Include an Ethereum address in your tweet!", tweet)
     }
-
-    const { id: userId }  = tweet.user;
 
     if (recipientHash[userId]){
         return reply(`Looks like you were recently sent some funds - slow down there!`, tweet)
@@ -96,13 +36,12 @@ startStream( async (tweet)=> {
     const receipt = await tx.wait()
     const { transactionHash } = receipt
 
-    const assertionTxHash = await getAssertion(transactionHash)
+    // const assertionTxHash = await getAssertion(transactionHash)
     recipientHash[userId] = true
-    console.info('transfer complete!')
-    // TODO: transactionHash is the arbitrum transaction hash so the etherscan link wouldn't be valid
-    // What would be good to put here? If we wanted we could get the transaction of the assertion that
-    // processed the transfer or the hash of the message batch that included it
-    reply(`Your funds have been sent, and are now available to use on the Arbiswap rollup chain! http://uniswap-demo.offchainlabs.com/`, tweet)
+    // TODO: check no revert?
+    console.info('Transfer successful!')
+
+    reply(`Your funds have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap`, tweet)
 
 
 })
@@ -127,16 +66,4 @@ async function debugPrint() {
     console.log("Faucet Token Balance:", ethers.utils.formatEther(await getTokenBalance()))
 }
 
-async function send(address: string) {
-        const tx = await transfer(address)
-        const receipt = await tx.wait()
-        const { transactionHash } = receipt
-
-        const assertionTxHash = await getAssertion(transactionHash)
-
-        console.log(`Funds sent! https://ropsten.etherscan.io/tx/${assertionTxHash}`)
-        return assertionTxHash
-}
-
 debugPrint()
-// send("0x38299D74a169e68df4Da85Fb12c6Fd22246aDD9F")
