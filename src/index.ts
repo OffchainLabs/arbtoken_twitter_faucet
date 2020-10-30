@@ -58,11 +58,8 @@ const isFaucetRequest = (tweetText): boolean=>{
 }
 
 async function debugPrint() {
-    console.log("Wallet Address:", await getWalletAddress())
+    console.log("Wallet Address", await getWalletAddress());
     console.log("Wallet Eth Balance (For making txes):", ethers.utils.formatEther(await getWalletEthBalance()))
-    console.log()
-    console.log("Faucet Address:", getFaucetAddress())
-    console.log("Faucet Eth Balance:", ethers.utils.formatEther(await getEthBalance()))
     console.log("Faucet Token Balance:", ethers.utils.formatEther(await getTokenBalance()))
 }
 

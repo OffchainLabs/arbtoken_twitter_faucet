@@ -24,14 +24,15 @@ const arbTokenContract = ArbERC20Factory.connect(
 )
 
 export const transfer = (to: string) => {
-  return arbFaucetWallet.transfer(to)
+	return arbTokenContract.transfer(to, ethers.utils.parseEther("1"))
+//   return arbFaucetWallet.transfer(to)
 }
 
 export const resetFaucet = (ethValue: ethers.utils.BigNumber, tokenValue: ethers.utils.BigNumber) => {
 	return arbFaucetWallet.updateFaucet(env.tokenAddress, tokenValue, ethValue)
 }
 
-export const getWalletAddress = (): Promise<string> => {
+export const getWalletAddress = async (): Promise<string> => {
 	return arbWallet.getAddress()
 }
 
@@ -40,7 +41,7 @@ export const getFaucetAddress = (): string => {
 }
 
 export const getTokenBalance = (): Promise<ethers.utils.BigNumber> => {
-	return arbTokenContract.balanceOf(env.faucetWalletAddress)
+	return arbTokenContract.balanceOf(arbWallet.address)
 }
 
 export const getEthBalance = async (): Promise<ethers.utils.BigNumber> => {
