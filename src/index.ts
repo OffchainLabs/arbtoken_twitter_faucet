@@ -39,9 +39,9 @@ startStream( async (tweet)=> {
     // const assertionTxHash = await getAssertion(transactionHash)
     recipientHash[userId] = true
     // TODO: check no revert?
-    console.info('Transfer successful!')
+    console.info('Transfer successful')
 
-    reply(`Your funds have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap`, tweet)
+    reply(`Your Arbiswap test tokens (0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25) have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap`, tweet)
 
 
 })

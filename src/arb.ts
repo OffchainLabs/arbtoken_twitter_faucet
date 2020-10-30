@@ -24,7 +24,7 @@ const arbTokenContract = ArbERC20Factory.connect(
 )
 
 export const transfer = (to: string) => {
-	return arbTokenContract.transfer(to, ethers.utils.parseEther("1"))
+	return arbTokenContract.transfer(to, ethers.utils.parseEther(".1"))
 //   return arbFaucetWallet.transfer(to)
 }
 
