@@ -41,7 +41,7 @@ startStream( async (tweet)=> {
     // TODO: check no revert?
     console.info('Transfer successful')
 
-    reply(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=ETH&outputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25`, tweet)
+    reply(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`, tweet)
 
 
 })
