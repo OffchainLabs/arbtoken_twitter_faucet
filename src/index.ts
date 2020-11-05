@@ -48,6 +48,7 @@ startStream( async (tweet)=> {
 
 const extractAddress = (str: string): string=> {
     return str
+        .replace( /\n/g, " " )
         .split(" ")
         .filter((subStr)=> subStr.startsWith("0x") && subStr.length == 42)
         [0] || ""
