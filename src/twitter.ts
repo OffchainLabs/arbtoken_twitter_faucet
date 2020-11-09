@@ -41,7 +41,7 @@ class TweetQueue{
         this.queue.push({text, tweet})
     }
     private runQueue = ()=>{
-        setInterval(()=>{
+        setTimeout(()=>{
             if (this.queue.length === 0 || new Date().getTime() - this.lastTweetSent < this.intervalSize){
                 this.runQueue()
                 return
