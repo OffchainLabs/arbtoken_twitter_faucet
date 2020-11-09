@@ -137,14 +137,21 @@ export const processTweet = async  (tweet)=>{
     if (recipientHash[userId]){
         return tweetQueue.addToQueue(`Looks like you were recently sent some funds - slow down there!`, tweet)
     }
+    try {
 
-    const tx = await transfer(address)
-    const receipt = await tx.wait()
-    const { transactionHash } = receipt
+        const tx = await transfer(address)
+        const receipt = await tx.wait()
+        const { transactionHash, status } = receipt
 
-    recipientHash[userId] = true
-    // TODO: check no revert?
-    console.info('Transfer successful')
-
-    tweetQueue.addToQueue(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`, tweet)
-}
+        console.info('Transfer successful')
+        if (status === 0){
+            console.warn(receipt);
+            throw new Error ('Transaction reverted')
+        }
+        recipientHash[userId] = true
+        tweetQueue.addToQueue(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`, tweet)
+        } catch(err){
+            console.warn("Error sending tx", err);
+            tweetQueue.addToQueue(`Unable to send tokens 🤔. @OffchainLabs is on the case!"`, tweet)
+        }
+    }
