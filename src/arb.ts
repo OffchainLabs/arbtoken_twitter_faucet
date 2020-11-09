@@ -25,7 +25,10 @@ const arbTokenContract = ArbERC20Factory.connect(
 
 export const transfer = (to: string) => {
 	return arbTokenContract.transfer(to, ethers.utils.parseEther("1000"))
-//   return arbFaucetWallet.transfer(to)
+}
+
+export const faucetContractTransfer = (to: string) => {
+  return arbFaucetWallet.transfer(to)
 }
 
 export const resetFaucet = (ethValue: ethers.utils.BigNumber, tokenValue: ethers.utils.BigNumber) => {
