@@ -23,6 +23,7 @@ const client = new Twitter({
 export const startStream = (cb)=>{
     const stream = client.stream('statuses/filter', {track: '@Arbi_Swap'});
     stream.on('data', cb);
+    stream.on('error', (err) => { console.log("Steam Error:", err) })
 }
 
 interface TweetToSend{
