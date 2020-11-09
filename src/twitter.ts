@@ -20,6 +20,12 @@ const client = new Twitter({
     });
 
 
+export const getRateLimit = async  ()=>{
+    const res = await client.get('https://api.twitter.com/1.1/application/rate_limit_status.json',{})
+    console.warn(res.resources);
+
+}
+
 export const startStream = (cb)=>{
     const stream = client.stream('statuses/filter', {track: '@Arbi_Swap'});
     stream.on('data', cb);
@@ -72,7 +78,7 @@ export const processOldTweets = async ()=>{
         const faucetTweets = await client.get('statuses/home_timeline', {count: 100})
         // sanity check:
         if (faucetTweets.length !== 100){
-            throw new Error("Could not fetch own timeline")
+            throw new Error("Could not fetch own timeline "+ faucetTweets.length )
         }
 
         const tweetsRespondedToIds = new Set ( faucetTweets.map((tweet)=> tweet.in_reply_to_status_id).filter((t)=>t) )
