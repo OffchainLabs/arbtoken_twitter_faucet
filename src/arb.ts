@@ -27,6 +27,13 @@ export const transfer = (to: string) => {
 	return arbTokenContract.transfer(to, ethers.utils.parseEther("1000"))
 }
 
+export const transferAndWaitForReceipt = async (to: string)=> {
+	const tx = await transfer(to)
+	const rec = await tx.wait()
+	console.warn(rec);
+
+}
+
 export const faucetContractTransfer = (to: string) => {
   return arbFaucetWallet.transfer(to)
 }
