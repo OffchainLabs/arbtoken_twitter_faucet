@@ -23,8 +23,9 @@ const arbTokenContract = ArbERC20Factory.connect(
 	arbWallet
 )
 
-export const transfer = (to: string) => {
-	return arbTokenContract.transfer(to, ethers.utils.parseEther("1000"))
+export const transfer = async (to: string) => {
+	const nonce = (await arbWallet.getTransactionCount())
+	return arbTokenContract.transfer(to, ethers.utils.parseEther("1000"), { nonce })
 }
 
 export const transferAndWaitForReceipt = async (to: string)=> {
@@ -34,6 +35,12 @@ export const transferAndWaitForReceipt = async (to: string)=> {
 	console.log(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${rec.transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`);
 
 
+}
+
+export const getUsersTokenBalance = async (address: string)=>{
+	const bal = await arbTokenContract.balanceOf(address)
+	console.log(bal.toString());
+	return bal
 }
 
 export const faucetContractTransfer = (to: string) => {
