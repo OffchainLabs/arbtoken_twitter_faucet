@@ -180,6 +180,6 @@ export const processTweet = async  (tweet)=>{
         tweetQueue.addToQueue(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`, tweet)
         } catch(err){
             console.warn("Error sending tx", err);
-            tweetQueue.addToQueue(`Unable to send tokens 🤔. @OffchainLabs is on the case!"`, tweet)
+            tweetQueue.addToQueue(`Unable to send tokens 🤔. @OffchainLabs is on the case!`, tweet)
         }
     }
