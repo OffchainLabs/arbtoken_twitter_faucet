@@ -13,7 +13,7 @@ async function debugPrint() {
 debugPrint()
 
 startStream( async (tweet)=> {
-    const { screen_name, full_text, created_at }  = tweet.user;
+    const { full_text, created_at, user: { screen_name } } = tweet
     console.info('')
     console.info('*** *** *** *** *** *** *** *** *** *** ***')
     console.info(`Incoming tweet from @${screen_name}:`)

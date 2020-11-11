@@ -88,7 +88,7 @@ export const processOldTweets = async ()=>{
         let attempt = 0
 
         while (attempt < 10 && latestRepliedTweet === -1) {
-            userRequestTweets = userRequestTweets.concat((await client.get('search/tweets', {q: '@Arbi_Swap gimme tokens', count: 100})).statuses )
+            userRequestTweets = userRequestTweets.concat((await client.get('search/tweets', {q: '@Arbi_Swap gimme tokens', count: 100, tweet_mode: "extended"})).statuses )
             latestRepliedTweet = userRequestTweets.findIndex((tweet)=> tweetsRespondedToIds.has(tweet.id))
             attempt ++
         }
@@ -96,6 +96,7 @@ export const processOldTweets = async ()=>{
         if (latestRepliedTweet > -1){
             const tweetsToReplyTo = userRequestTweets.slice(0, latestRepliedTweet).reverse()
             console.log("*** # of backlogged tweets: ***", tweetsToReplyTo.length);
+            console.log(tweetsToReplyTo.map((tweet)=> tweet.user.screen_name) .join(","))
             tweetsToReplyTo.forEach(processTweet)
         } else {
             throw new Error("Could not find last replied tweet")
@@ -126,7 +127,8 @@ setInterval(()=>{
     recipientHash = {}
 }, 1000 * 60 * 30)
 export const processTweet = async  (tweet)=>{
-    const { id: userId, full_text }  = tweet.user;
+    const { id: userId }  = tweet.user;
+    const { full_text  } = tweet
 
     if (!isFaucetRequest(full_text)){
         console.info('not a faucet request')
