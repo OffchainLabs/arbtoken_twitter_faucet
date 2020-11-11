@@ -30,7 +30,9 @@ export const transfer = (to: string) => {
 export const transferAndWaitForReceipt = async (to: string)=> {
 	const tx = await transfer(to)
 	const rec = await tx.wait()
-	console.warn(rec);
+	console.info(rec);
+	console.log(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${rec.transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`);
+
 
 }
 

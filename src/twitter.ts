@@ -127,8 +127,29 @@ setInterval(()=>{
     recipientHash = {}
 }, 1000 * 60 * 30)
 export const processTweet = async  (tweet)=>{
-    const { id: userId }  = tweet.user;
-    const { full_text  } = tweet
+
+    const { created_at, user: { screen_name, id: userId } } = tweet
+
+    const full_text = ((tweet)=>{
+        const { full_text, extended_tweet, text } = tweet
+
+        if (full_text){
+            return full_text
+        } else if (extended_tweet){
+            return extended_tweet.full_text
+        } else {
+            return text
+        }
+    })(tweet)
+
+
+    console.info('')
+    console.info('*** *** *** *** *** *** *** *** *** *** ***')
+    console.info(`Processing tweet from @${screen_name}:`)
+    console.info(created_at)
+    console.info(`Text: '${full_text}'`);
+
+
 
     if (!isFaucetRequest(full_text)){
         console.info('not a faucet request')
