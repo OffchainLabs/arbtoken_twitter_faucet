@@ -27,7 +27,7 @@ export const getRateLimit = async  ()=>{
 }
 
 export const startStream = (cb)=>{
-    const stream = client.stream('statuses/filter', {track: '@Arbi_Swap'});
+    const stream = client.stream('statuses/filter', {track: '@Arbi_Swap', tweet_mode: "extended"});
     stream.on('data', cb);
     stream.on('error', (err) => { console.log("Steam Error:", err) })
 }
@@ -75,7 +75,7 @@ const tweetQueue = new TweetQueue()
 export const processOldTweets = async ()=>{
 
     try {
-        const faucetTweets = await client.get('statuses/home_timeline', {count: 100})
+        const faucetTweets = await client.get('statuses/home_timeline', {count: 100, tweet_mode: "extended"})
         // sanity check:
         if (faucetTweets.length !== 100){
             throw new Error("Could not fetch own timeline "+ faucetTweets.length )
@@ -113,8 +113,7 @@ const extractAddress = (str: string): string=> {
     return str
         .replace( /\n/g, " " )
         .split(" ")
-        .filter((subStr)=> subStr.startsWith("0x") && subStr.length == 42)
-        [0] || ""
+        .find((subStr)=> subStr.startsWith("0x") && subStr.length == 42)
 }
 
 const isFaucetRequest = (tweetText): boolean=>{
@@ -127,14 +126,14 @@ setInterval(()=>{
     recipientHash = {}
 }, 1000 * 60 * 30)
 export const processTweet = async  (tweet)=>{
-    const { id: userId }  = tweet.user;
+    const { id: userId, full_text }  = tweet.user;
 
-    if (!isFaucetRequest(tweet.text)){
+    if (!isFaucetRequest(full_text)){
         console.info('not a faucet request')
         return
     }
 
-    const address = extractAddress(tweet.text)
+    const address = extractAddress(full_text)
     if (!address){
         console.info('no address')
         return tweetQueue.addToQueue("Missing Address — Include an Ethereum address in your tweet!", tweet)
