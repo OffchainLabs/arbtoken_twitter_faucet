@@ -2,7 +2,7 @@ import Twitter from "twitter"
 
 import env from "./constants";
 import { transfer } from './arb'
-
+import { messageSlack } from "./slack"
 
 //  simple DOS guard
 
@@ -128,7 +128,7 @@ setInterval(()=>{
 }, 1000 * 60 * 30)
 export const processTweet = async  (tweet)=>{
 
-    const { created_at, user: { screen_name, id: userId } } = tweet
+    const { created_at, user: { screen_name, id: userId }, id_str } = tweet
 
     const full_text = ((tweet)=>{
         const { full_text, extended_tweet, text } = tweet
@@ -181,5 +181,6 @@ export const processTweet = async  (tweet)=>{
         } catch(err){
             console.warn("Error sending tx", err);
             tweetQueue.addToQueue(`Unable to send tokens 🤔. @OffchainLabs is on the case!`, tweet)
+            messageSlack(`${screen_name}'s faucet request failed: https://twitter.com/${screen_name}/status/${id_str}}`)
         }
     }
