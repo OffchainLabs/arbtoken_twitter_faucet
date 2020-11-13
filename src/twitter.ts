@@ -165,22 +165,34 @@ export const processTweet = async  (tweet)=>{
     if (recipientHash[userId]){
         return tweetQueue.addToQueue(`Looks like you were recently sent some funds - slow down there!`, tweet)
     }
+    let txStatus = null;
     try {
 
         const tx = await transfer(address)
         const receipt = await tx.wait()
         const { transactionHash, status } = receipt
-
-        console.info('Transfer successful')
+        txStatus = status
+        console.info('Transfer finished')
         if (status === 0){
             console.warn(receipt);
             tweetQueue.addToQueue(`Unable to send tokens 🤔. @OffchainLabs is on the case!`, tweet)
-            messageSlack(`${screen_name}'s faucet request failed: https://twitter.com/${screen_name}/status/${id_str}}`)
             throw new Error ('Transaction reverted')
         }
         recipientHash[userId] = true
         tweetQueue.addToQueue(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`, tweet)
-        } catch(err){
-            console.warn("Error sending tx", err);
+    } catch(err){
+
+        const readableStatus = ((txStatus)=>{
+            switch (txStatus) {
+                case 0:
+                    return "reverted"
+                case 1:
+                    return "succeeded"
+                case null:
+                    return "unknown"
+            }
+        })(txStatus)
+        messageSlack(`${screen_name}'s faucet request failed: \n\n Message:" ${err.message}" \n\n TxStatus: ${readableStatus} https://twitter.com/${screen_name}/status/${id_str}}`)
+        console.warn("Error sending tx", err);
         }
     }
