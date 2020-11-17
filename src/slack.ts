@@ -9,5 +9,5 @@ const conversationId = process.env.SLACK_CHANNEL_ID;
 
 export const messageSlack = async (text:string) => {
   const res = await web.chat.postMessage({ channel: conversationId, text });
-  console.log('Message sent: ', res.ts);
+  console.log('Slack message sent: ', res.ts);
 }

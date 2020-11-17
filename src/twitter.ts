@@ -43,6 +43,9 @@ class TweetQueue{
     constructor(){
         this.runQueue()
     }
+    get somePending(){
+        return this.queue.length > 0
+    }
     addToQueue = (text: string, tweet: any)=>{
         if (this.queue.find((queuedTweet)=> tweet.id === queuedTweet.tweet.id)){
             console.info('*** Tweet already in queue ***', tweet.id)
@@ -73,42 +76,33 @@ class TweetQueue{
 
 
 
-const tweetQueue = new TweetQueue()
+export const tweetQueue = new TweetQueue()
 
 
 export const processOldTweets = async (options ={verbose: false})=>{
     const { verbose } = options
     try {
-        const faucetTweets = await client.get('statuses/home_timeline', {count: 100, tweet_mode: "extended"})
+        const faucetTweets = await client.get('statuses/home_timeline', {count: 200, tweet_mode: "extended"})
         // sanity check:
-        if (faucetTweets.length !== 100){
+        if (faucetTweets.length !== 200){
             throw new Error("Could not fetch own timeline "+ faucetTweets.length )
         }
 
         const tweetsRespondedToIds = new Set ( faucetTweets.map((tweet)=> tweet.in_reply_to_status_id).filter((t)=>t) )
 
-        let latestRepliedTweet = - 1
-        let userRequestTweets = []
-        let attempt = 0
+        let userRequestTweets = (await client.get('statuses/mentions_timeline', {count: 200, tweet_mode: "extended", since_id:1325265507042402300}))
+        if (!userRequestTweets.some((tweet)=> tweetsRespondedToIds.has(tweet.id))){
+            console.warn("WARNING: no responses in last tweet batch, suspicious....");
+        }
+        const unrepliedFaucetRequests = userRequestTweets.filter((tweet)=> isFaucetRequest(tweet.full_text) && !tweetsRespondedToIds.has(tweet.id));
 
-        while (attempt < 10 && latestRepliedTweet === -1) {
-            if (attempt > 0){
-                console.info("searching backlog, attempt", attempt)
-            }
-            userRequestTweets = userRequestTweets.concat((await client.get('search/tweets', {q: '@Arbi_Swap gimme tokens', count: 100, tweet_mode: "extended"})).statuses )
-            latestRepliedTweet = userRequestTweets.findIndex((tweet)=> tweetsRespondedToIds.has(tweet.id))
-            attempt ++
+        (verbose || unrepliedFaucetRequests.length > 0) &&  console.warn('tweets that need replying:', unrepliedFaucetRequests.length);
+
+        for (let i = 0; i < unrepliedFaucetRequests.length; i++) {
+            await processTweet(unrepliedFaucetRequests[i])
+
         }
 
-        if (latestRepliedTweet > -1){
-            const tweetsToReplyTo = userRequestTweets.slice(0, latestRepliedTweet).reverse();
-            (verbose || tweetsToReplyTo.length > 0 ) &&   console.log("*** # of backlogged tweets: ***", tweetsToReplyTo.length);
-            tweetsToReplyTo.length > 0 && console.log(tweetsToReplyTo.map((tweet)=> tweet.user.screen_name) .join(","))
-            tweetsToReplyTo.forEach(processTweet)
-        } else {
-            throw new Error("Could not find last replied tweet")
-
-        }
     } catch (err){
         console.warn("ERROR PROCESSING OLD TWEETS:");
         console.warn(err);
@@ -152,7 +146,7 @@ export const processTweet = async  (tweet)=>{
 
     console.info('')
     console.info('*** *** *** *** *** *** *** *** *** *** ***')
-    console.info(`Processing tweet from @${screen_name}:`)
+    console.info(`Processing tweet from @${screen_name}: ${id_str}`)
     console.info(created_at)
     console.info(`Text: '${full_text}'`);
 
@@ -165,7 +159,7 @@ export const processTweet = async  (tweet)=>{
 
     const address = extractAddress(full_text)
     if (!address){
-        console.info('no address')
+        console.info('No address',tweet.id_str)
         return tweetQueue.addToQueue("Missing Address — Include an Ethereum address in your tweet!", tweet)
     }
 
