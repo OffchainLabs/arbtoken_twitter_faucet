@@ -22,4 +22,4 @@ processOldTweets({verbose: true})
 
 setInterval(()=>{
     processOldTweets()
-}, 1000*60)
+}, 1000*60*2)

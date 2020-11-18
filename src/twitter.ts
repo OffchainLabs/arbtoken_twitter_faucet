@@ -11,6 +11,16 @@ import { messageSlack } from "./slack"
 user-based auth here for now
 */
 
+const swapMessage = ()=>{
+    const msgs = ["Start swapping!", "Swap it up!", "Swap til you drop!", "Swap responsibly!"]
+    return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+const burnMessage = ()=>{
+    const msgs = ["Feel the burn!", "Burn it up!", "Burn baby burn!"]
+    return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
 
 const client = new Twitter({
         consumer_key: env.consumerKey,
@@ -180,7 +190,10 @@ export const processTweet = async  (tweet)=>{
             throw new Error ('Transaction reverted')
         }
         recipientHash[userId] = true
-        tweetQueue.addToQueue(`Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\nStart swapping! https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`, tweet)
+        const message = full_text.toLocaleLowerCase().includes('burner') ?
+        `Your ARBI test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${burnMessage()} https://burner.arbitrum.io/`
+        : `Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${swapMessage()} https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`
+        tweetQueue.addToQueue(message, tweet)
     } catch(err){
 
         const readableStatus = ((txStatus)=>{
