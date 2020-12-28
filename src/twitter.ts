@@ -97,6 +97,8 @@ export const processOldTweets = async (options ={verbose: false})=>{
         if (faucetTweets.length !== 200){
             throw new Error("Could not fetch own timeline "+ faucetTweets.length )
         }
+        // sanity check
+        const tweetBenchmarkDate = new Date( faucetTweets[faucetTweets.length -1 ].created_at)
 
         const tweetsRespondedToIds = new Set ( faucetTweets.map((tweet)=> tweet.in_reply_to_status_id).filter((t)=>t) )
 
@@ -104,7 +106,7 @@ export const processOldTweets = async (options ={verbose: false})=>{
         if (!userRequestTweets.some((tweet)=> tweetsRespondedToIds.has(tweet.id))){
             console.warn("WARNING: no responses in last tweet batch, suspicious....");
         }
-        const unrepliedFaucetRequests = userRequestTweets.filter((tweet)=> isFaucetRequest(tweet.full_text) && !tweetsRespondedToIds.has(tweet.id));
+        const unrepliedFaucetRequests = userRequestTweets.filter((tweet)=> isFaucetRequest(tweet.full_text) && !tweetsRespondedToIds.has(tweet.id) && new Date(tweet.created_at) > tweetBenchmarkDate);
 
         (verbose || unrepliedFaucetRequests.length > 0) &&  console.warn('tweets that need replying:', unrepliedFaucetRequests.length);
 
