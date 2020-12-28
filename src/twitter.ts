@@ -206,7 +206,7 @@ export const processTweet = async  (tweet)=>{
                     return "unknown"
             }
         })(txStatus)
-        messageSlack(`${screen_name}'s faucet request failed: \n\n Message:" ${err.message}" \n\n TxStatus: ${readableStatus} https://twitter.com/${screen_name}/status/${id_str}}`)
+        messageSlack(`${screen_name}'s faucet request failed: \n\n Message:" ${err.message}" \n\n TxStatus: ${readableStatus} https://twitter.com/${screen_name}/status/${id_str}`)
         console.warn("Error sending tx", err);
         }
     }
