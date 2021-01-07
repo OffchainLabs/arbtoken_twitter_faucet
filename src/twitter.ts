@@ -49,7 +49,7 @@ interface TweetToSend{
 class TweetQueue{
     lastTweetSent = 0
     queue: TweetToSend[] = []
-    intervalSize = 20000
+    intervalSize = 120000
     constructor(){
         this.runQueue()
     }
