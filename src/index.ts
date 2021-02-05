@@ -1,4 +1,4 @@
-import { startStream, processOldTweets, processTweet } from './twitter'
+import { startStream, processOldTweets, processTweetNewFaucet } from './twitter'
 import { transfer, resetFaucet, getTokenBalance, getEthBalance, getWalletEthBalance, getWalletAddress, getFaucetAddress } from './arb'
 import { ethers } from 'ethers'
 import express from 'express'
@@ -14,12 +14,12 @@ debugPrint()
 
 startStream( async (tweet)=> {
 
-    processTweet(tweet)
+    processTweetNewFaucet(tweet)
 
 })
 
-processOldTweets({verbose: true})
+// processOldTweets({verbose: true})
 
-setInterval(()=>{
-    processOldTweets()
-}, 1000*60*2)
+// setInterval(()=>{
+//     processOldTweets()
+// }, 1000*60*2)

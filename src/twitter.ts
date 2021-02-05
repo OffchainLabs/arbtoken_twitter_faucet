@@ -49,7 +49,7 @@ interface TweetToSend{
 class TweetQueue{
     lastTweetSent = 0
     queue: TweetToSend[] = []
-    intervalSize = 120000
+    intervalSize = 1000*60*3
     constructor(){
         this.runQueue()
     }
@@ -90,6 +90,7 @@ export const tweetQueue = new TweetQueue()
 
 
 export const processOldTweets = async (options ={verbose: false})=>{
+    console.warn(new Date().toString());
     const { verbose } = options
     try {
         const faucetTweets = await client.get('statuses/home_timeline', {count: 200, tweet_mode: "extended"})
@@ -106,13 +107,13 @@ export const processOldTweets = async (options ={verbose: false})=>{
         if (!userRequestTweets.some((tweet)=> tweetsRespondedToIds.has(tweet.id))){
             console.warn("WARNING: no responses in last tweet batch, suspicious....");
         }
+        
         const unrepliedFaucetRequests = userRequestTweets.filter((tweet)=> isFaucetRequest(tweet.full_text) && !tweetsRespondedToIds.has(tweet.id) && new Date(tweet.created_at) > tweetBenchmarkDate);
-
-        (verbose || unrepliedFaucetRequests.length > 0) &&  console.warn('tweets that need replying:', unrepliedFaucetRequests.length);
-
+        console.info('tweets that need replying:', unrepliedFaucetRequests.length);
         for (let i = 0; i < unrepliedFaucetRequests.length; i++) {
-            await processTweet(unrepliedFaucetRequests[i])
+            await processTweetNewFaucet(unrepliedFaucetRequests[i])
 
+            
         }
 
     } catch (err){
@@ -136,9 +137,41 @@ const isFaucetRequest = (tweetText): boolean=>{
 
 
 let recipientHash = {}
-setInterval(()=>{
-    recipientHash = {}
-}, 1000 * 60 * 30)
+// setInterval(()=>{
+//     recipientHash = {}
+// }, 1000 * 60 * 60)
+
+export const processTweetNewFaucet =  (tweet)=>{
+    console.warn(new Date().toString());
+
+    const { created_at, user: { screen_name, id: userId }, id_str } = tweet
+
+    const full_text = ((tweet)=>{
+        const { full_text, extended_tweet, text } = tweet
+
+        if (full_text){
+            return full_text
+        } else if (extended_tweet){
+            return extended_tweet.full_text
+        } else {
+            return text
+        }
+    })(tweet)
+
+    if (!isFaucetRequest(full_text)){
+        console.info('not a faucet request')
+        return
+    }
+    
+    if (recipientHash[userId]){
+        console.info('user in recipient hash already')
+        return 
+    }
+
+    tweetQueue.addToQueue("This faucet is depracated! Check out our new smart contract faucet here: http://faucet.arbitrum.io/", tweet)
+    recipientHash[userId] = true
+}
+
 export const processTweet = async  (tweet)=>{
 
     const { created_at, user: { screen_name, id: userId }, id_str } = tweet
@@ -193,8 +226,8 @@ export const processTweet = async  (tweet)=>{
         }
         recipientHash[userId] = true
         const message = full_text.toLocaleLowerCase().includes('burner') ?
-        `Your ARBI test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${burnMessage()} https://burner.arbitrum.io/`
-        : `Your Arbiswap test tokens have been sent: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${swapMessage()} https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`
+        `Your ARBI test tokens have been sent on our new v3 testnet: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${burnMessage()} https://burner.arbitrum.io/`
+        : `Your Arbiswap test tokens have been sent on our new v3 testnet: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${swapMessage()} https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`
         tweetQueue.addToQueue(message, tweet)
     } catch(err){
 
