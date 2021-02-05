@@ -21,6 +21,11 @@ const burnMessage = ()=>{
     return msgs[Math.floor(Math.random() * msgs.length)];
 }
 
+const newFaucetMessage = ()=>{
+    const msgs = ["Enjoy!", "Arbitrum awaits!", "Go get em!", "Have at it!", "Don't spend it all in one place :)", "Godspeed!"]
+    return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
 
 const client = new Twitter({
         consumer_key: env.consumerKey,
@@ -168,7 +173,7 @@ export const processTweetNewFaucet =  (tweet)=>{
         return 
     }
 
-    tweetQueue.addToQueue("This faucet is depracated! Check out our new smart contract faucet here: http://faucet.arbitrum.io/", tweet)
+    tweetQueue.addToQueue(`This faucet is deprecated! Check out our new smart contract faucet here; ${newFaucetMessage()} http://faucet.arbitrum.io/`, tweet)
     recipientHash[userId] = true
 }
 
