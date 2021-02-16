@@ -1,6 +1,70 @@
 import { startStream, reply } from './twitter'
 import { transfer, resetFaucet, getAssertion, getTokenBalance, getEthBalance, getWalletEthBalance, getWalletAddress, getFaucetAddress } from './arb'
 import { ethers } from 'ethers'
+import express from 'express'
+import db from './db'
+const cors = require('cors')
+import bodyParser from 'body-parser'
+import morgan from 'morgan'
+import env from "./constants";
+const app = express()
+const https = require('https')
+const fs = require('fs')
+
+
+
+
+app.use(cors())
+app.use(bodyParser())
+app.use(morgan('combined'));
+
+/* nedb' autoload flag should, in theory take care of loading db, but seeing stale lookups after insert for some reason. hence: */
+const loadDB = (req, res, next)=>{
+    db.loadDatabase(next)
+}
+
+app.post('/funds',loadDB, (req, res) => {
+    const { address, token } = req.body
+    const targetAddress = extractAddress(address)
+
+    db.findOne({ token }, async(err, tokenRecord) => {
+        if(err){
+            return res.status(500).json(`Error: ${err.toString()}`)
+        }
+        if (!tokenRecord){
+            return res.status(500).json('Invalid access token')
+        }
+        if (!targetAddress){
+            return res.status(500).json('Invalid address')
+        }
+        if (tokenRecord.requests > 20){
+            return res.status(500).json('Rate limit exceeded')
+        }
+        try {
+            send(targetAddress)
+            db.update(tokenRecord, {...tokenRecord,  requests: tokenRecord.requests + 1 } )
+            res.json(true)
+        } catch (err) {
+            return res.status(500).json(`Failed to transfer funds, ${err.toString()}`)
+        }
+
+      });
+})
+
+app.get('/ping', (req, res)=>{
+    res.send('pong')
+})
+
+
+const server =  https.createServer({
+    key: fs.readFileSync(process.env.SSL_KEY_PATH, 'ascii')
+  , cert: fs.readFileSync(process.env.SSL_CERT_PATH, 'ascii') // a PEM containing the SERVER and ALL INTERMEDIATES
+  }, app);
+
+server.listen(env.port, () => console.log(`Listening on port ${env.port}`))
+
+
+
 
 //  simple dos guard
 let recipientHash = {}
@@ -71,6 +135,7 @@ async function send(address: string) {
         const assertionTxHash = await getAssertion(transactionHash)
 
         console.log(`Funds sent! https://ropsten.etherscan.io/tx/${assertionTxHash}`)
+        return assertionTxHash
 }
 
 debugPrint()
