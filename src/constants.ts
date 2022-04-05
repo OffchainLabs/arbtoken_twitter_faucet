@@ -7,7 +7,6 @@ export default  {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
     arbProviderUrl: process.env.ARB_PROVIDER_URL,
     arbValidatorUrl: process.env.ARB_VALIDATOR_URL,
-    ethProviderUrl: process.env.ETH_PROVIDER_URL,
     privateKey: process.env.PRIVATE_KEY,
     tokenAddress: process.env.TOKEN_ADDRESS,
     bearerToken: process.env.BEARER_TOKEN,

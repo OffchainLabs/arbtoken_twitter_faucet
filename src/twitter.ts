@@ -1,7 +1,7 @@
 import Twitter from "twitter"
 
 import env from "./constants";
-import { transfer } from './arb'
+import { transfer, EOAtransfer } from './arb'
 import { messageSlack } from "./slack"
 
 //  simple DOS guard
@@ -42,7 +42,7 @@ export const getRateLimit = async  ()=>{
 }
 
 export const startStream = (cb)=>{
-    const stream = client.stream('statuses/filter', {track: '@Arbi_Swap', tweet_mode: "extended"});
+    const stream = client.stream('statuses/filter', {track: '@nitro_devnet', tweet_mode: "extended"});
     stream.on('data', cb);
     stream.on('error', (err) => { console.log("Steam Error:", err) })
 }
@@ -54,7 +54,7 @@ interface TweetToSend{
 class TweetQueue{
     lastTweetSent = 0
     queue: TweetToSend[] = []
-    intervalSize = 1000*60*3
+    intervalSize = 1000*30
     constructor(){
         this.runQueue()
     }
@@ -100,8 +100,11 @@ export const processOldTweets = async (options ={verbose: false})=>{
     try {
         const faucetTweets = await client.get('statuses/home_timeline', {count: 200, tweet_mode: "extended"})
         // sanity check:
-        if (faucetTweets.length !== 200){
-            throw new Error("Could not fetch own timeline "+ faucetTweets.length )
+        
+        
+        if (faucetTweets.length === 0){
+            console.log('no tweets found in own TL');
+            return 
         }
         // sanity check
         const tweetBenchmarkDate = new Date( faucetTweets[faucetTweets.length -1 ].created_at)
@@ -117,8 +120,6 @@ export const processOldTweets = async (options ={verbose: false})=>{
         console.info('tweets that need replying:', unrepliedFaucetRequests.length);
         for (let i = 0; i < unrepliedFaucetRequests.length; i++) {
             await processTweetNewFaucet(unrepliedFaucetRequests[i])
-
-            
         }
 
     } catch (err){
@@ -136,8 +137,9 @@ const extractAddress = (str: string): string=> {
         .find((subStr)=> subStr.startsWith("0x") && subStr.length == 42)
 }
 
-const isFaucetRequest = (tweetText): boolean=>{
-    return tweetText.includes("gimme") && tweetText.includes("tokens")
+const isFaucetRequest = (tweetText: string): boolean=>{
+    // TODO update
+    return tweetText.toLowerCase().includes("nitro")
 }
 
 
@@ -219,21 +221,19 @@ export const processTweet = async  (tweet)=>{
     let txStatus = null;
     try {
 
-        const tx = await transfer(address)
+        const tx = await EOAtransfer(address)
         const receipt = await tx.wait()
         const { transactionHash, status } = receipt
         txStatus = status
         console.info('Transfer finished')
         if (status === 0){
             console.warn(receipt);
-            tweetQueue.addToQueue(`Unable to send tokens 🤔. @OffchainLabs is on the case!`, tweet)
+            tweetQueue.addToQueue(`Unable to send ether 🤔. @OffchainLabs is on the case!`, tweet)
             throw new Error ('Transaction reverted')
         }
         recipientHash[userId] = true
-        const message = full_text.toLocaleLowerCase().includes('burner') ?
-        `Your ARBI test tokens have been sent on our new v3 testnet: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${burnMessage()} https://burner.arbitrum.io/`
-        : `Your Arbiswap test tokens have been sent on our new v3 testnet: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${swapMessage()} https://swap.arbitrum.io/#/swap?inputCurrency=0xF36D7A74996E7DeF7A6bD52b4C2Fe64019DADa25&outputCurrency=ETH`
-        tweetQueue.addToQueue(message, tweet)
+        // TODO: messages / explorer url
+        const message = `Your ARBI test tokens have been sent on our new v3 testnet: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${burnMessage()} https://burner.arbitrum.io/`
     } catch(err){
 
         const readableStatus = ((txStatus)=>{
