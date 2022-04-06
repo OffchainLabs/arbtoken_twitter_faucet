@@ -201,6 +201,12 @@ export const processTweet = async  (tweet)=>{
     console.info(created_at)
     console.info(`Text: '${full_text}'`);
 
+    if(tweet.in_reply_to_status_id){
+        console.warn('reply');
+        return
+    }
+
+  
 
 
     if (!isFaucetRequest(full_text)){
