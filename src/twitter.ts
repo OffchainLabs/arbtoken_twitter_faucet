@@ -138,8 +138,7 @@ const extractAddress = (str: string): string=> {
 }
 
 const isFaucetRequest = (tweetText: string): boolean=>{
-    // TODO update
-    return tweetText.toLowerCase().includes("nitro")
+    return tweetText.toLowerCase().includes("nitro devnet")
 }
 
 
@@ -232,8 +231,9 @@ export const processTweet = async  (tweet)=>{
             throw new Error ('Transaction reverted')
         }
         recipientHash[userId] = true
-        // TODO: messages / explorer url
-        const message = `Your ARBI test tokens have been sent on our new v3 testnet: https://explorer.offchainlabs.com/#/tx/${transactionHash}.\r\n\r\n ${burnMessage()} https://burner.arbitrum.io/`
+        const message = `You Ether has been sent on the nitro-testnet: https://nitro-devnet-explorer.arbitrum.io/tx/${transactionHash}.\r\n\r\n`
+        tweetQueue.addToQueue(message, tweet)
+
     } catch(err){
 
         const readableStatus = ((txStatus)=>{
