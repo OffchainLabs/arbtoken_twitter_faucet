@@ -119,7 +119,7 @@ export const processOldTweets = async (options ={verbose: false})=>{
         const unrepliedFaucetRequests = userRequestTweets.filter((tweet)=> isFaucetRequest(tweet.full_text) && !tweetsRespondedToIds.has(tweet.id) && new Date(tweet.created_at) > tweetBenchmarkDate);
         console.info('tweets that need replying:', unrepliedFaucetRequests.length);
         for (let i = 0; i < unrepliedFaucetRequests.length; i++) {
-            await processTweetNewFaucet(unrepliedFaucetRequests[i])
+            await processTweet(unrepliedFaucetRequests[i])
         }
 
     } catch (err){
