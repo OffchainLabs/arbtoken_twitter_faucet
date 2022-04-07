@@ -180,7 +180,7 @@ export const processTweetNewFaucet =  (tweet)=>{
 
 export const processTweet = async  (tweet)=>{
 
-    const { created_at, user: { screen_name, id: userId }, id_str } = tweet
+    const { created_at, user: { screen_name, id: userId }, id_str, retweeted_status } = tweet
 
     const full_text = ((tweet)=>{
         const { full_text, extended_tweet, text } = tweet
@@ -202,7 +202,12 @@ export const processTweet = async  (tweet)=>{
     console.info(`Text: '${full_text}'`);
 
     if(tweet.in_reply_to_status_id){
-        console.warn('reply');
+        console.info('reply, noop');
+        return
+    }
+
+    if(retweeted_status){
+        console.info('retweet, noop');
         return
     }
 
@@ -210,7 +215,7 @@ export const processTweet = async  (tweet)=>{
 
 
     if (!isFaucetRequest(full_text)){
-        console.info('not a faucet request')
+        console.info('not a faucet request, noop')
         return
     }
 
