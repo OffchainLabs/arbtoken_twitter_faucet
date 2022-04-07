@@ -1,5 +1,5 @@
 import { startStream, processTweet,processOldTweets, processTweetNewFaucet, getRateLimit } from './twitter'
-import { transfer, resetFaucet, getTokenBalance, getEthBalance, getWalletAddress, getFaucetAddress } from './arb'
+import { transfer, resetFaucet, getTokenBalance, getEthBalance, getWalletAddress, getFaucetAddress, EOAtransfer } from './arb'
 import { ethers } from 'ethers'
 import { messageSlack } from './slack'
 import express from 'express'
@@ -27,7 +27,7 @@ setInterval(()=>{
 // check faucet balance
 setInterval(async ()=>{
     const bal = +ethers.utils.formatEther(await getEthBalance())    
-    if(bal < 10){
+    if(bal < 50){
         const address = await getWalletAddress()
         messageSlack(`Faucet is running low; only has ${bal} Eth left; send Eth to ${address}`)
     }
