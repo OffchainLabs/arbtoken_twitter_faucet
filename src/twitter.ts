@@ -143,9 +143,9 @@ const isFaucetRequest = (tweetText: string): boolean=>{
 
 
 let recipientHash = {}
-// setInterval(()=>{
-//     recipientHash = {}
-// }, 1000 * 60 * 60)
+setInterval(()=>{
+    recipientHash = {}
+}, 1000 * 60 * 60 * 24)
 
 export const processTweetNewFaucet =  (tweet)=>{
     console.warn(new Date().toString());
