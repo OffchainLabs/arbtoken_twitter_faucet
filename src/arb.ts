@@ -50,13 +50,33 @@ export const resetFaucet = (ethValue: ethers.utils.BigNumber, tokenValue: ethers
 	return arbFaucetWallet.updateFaucet(env.tokenAddress, tokenValue, ethValue)
 }
 
-export const EOAtransfer = (to: string) => {
+export const EOAtransfer = (to: string, nonce?: number) => {
 	return arbWallet.sendTransaction({
 		to,
-		value: ethers.utils.parseEther("0.1")
-
+		value: ethers.utils.parseEther("0.1"),
+		nonce
 	})
 }
+
+export const EOATransferHandleNonce = (() => {
+	let inFlightTxs = 0;
+	return async (to: string) => {
+	  try {
+		const nonce =
+		  inFlightTxs === 0
+			? undefined
+			: (await arbWallet.getTransactionCount()) + inFlightTxs;
+		const res = await EOAtransfer(to, nonce);
+		inFlightTxs++;
+		const rec = await res.wait();
+		inFlightTxs--;
+		return rec;
+	  } catch (err) {
+		inFlightTxs = 0;
+		throw err;
+	  }
+	};
+  })();
 export const getWalletAddress = async (): Promise<string> => {
 	return arbWallet.getAddress()
 }

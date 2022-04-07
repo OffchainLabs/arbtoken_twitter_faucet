@@ -1,7 +1,7 @@
 import Twitter from "twitter"
 
 import env from "./constants";
-import { transfer, EOAtransfer } from './arb'
+import { transfer, EOAtransfer, EOATransferHandleNonce } from './arb'
 import { messageSlack } from "./slack"
 
 //  simple DOS guard
@@ -226,8 +226,7 @@ export const processTweet = async  (tweet)=>{
     let txStatus = null;
     try {
 
-        const tx = await EOAtransfer(address)
-        const receipt = await tx.wait()
+        const receipt = await EOATransferHandleNonce(address)
         const { transactionHash, status } = receipt
         txStatus = status
         console.info('Transfer finished')
