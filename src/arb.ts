@@ -66,8 +66,8 @@ export const EOATransferHandleNonce = (() => {
 		  inFlightTxs === 0
 			? undefined
 			: (await arbWallet.getTransactionCount()) + inFlightTxs;
-		const res = await EOAtransfer(to, nonce);
 		inFlightTxs++;
+		const res = await EOAtransfer(to, nonce);
 		const rec = await res.wait();
 		inFlightTxs--;
 		return rec;
