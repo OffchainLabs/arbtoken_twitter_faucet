@@ -8,6 +8,7 @@ const web = new WebClient(token);
 const conversationId = process.env.SLACK_CHANNEL_ID;
 
 export const messageSlack = async (text:string) => {
+  if(process.env.DEV_MODE)return
   const res = await web.chat.postMessage({ channel: conversationId, text });
   console.log('Slack message sent: ', res.ts);
 }

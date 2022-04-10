@@ -76,14 +76,16 @@ class TweetQueue{
             }
             const tweetToSend = this.queue.shift()
             const { text, tweet }= tweetToSend
+            const { user: { screen_name} }= tweet
+            if(env.devMode)return
             client.post('statuses/update',{
                 status:`@${tweet.user.screen_name} ${text}`,
                 in_reply_to_status_id: tweet.id_str
             }).then((data)=>{
                 this.lastTweetSent = new Date().getTime()
-                console.info(`successfully replied: ${this.queue.length} tweets in queue`)
+                console.info(`successfully replied to ${screen_name}: ${this.queue.length} tweets in queue`)
             }).catch((err)=>{
-                console.warn('error replying to tweet', err);
+                console.warn(`error replying to ${screen_name}`, err);
             }).finally(this.runQueue)
         }, 2000)
     }
@@ -230,7 +232,7 @@ export const processTweet = async  (tweet)=>{
     }
     let txStatus = null;
     try {
-
+        if(env.devMode)return
         const receipt = await EOATransferHandleNonce(address)
         const { transactionHash, status } = receipt
         txStatus = status

@@ -11,5 +11,6 @@ export default  {
     tokenAddress: process.env.TOKEN_ADDRESS,
     bearerToken: process.env.BEARER_TOKEN,
     faucetWalletAddress: process.env.FAUCET_WALLET_ADDRESS,
-    port: process.env.PORT
+    port: process.env.PORT,
+    devMode: process.env.DEV_MODE
 }
