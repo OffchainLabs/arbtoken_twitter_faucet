@@ -90,5 +90,5 @@ export const getTokenBalance = (): Promise<ethers.utils.BigNumber> => {
 }
 
 export const getEthBalance = async (): Promise<ethers.utils.BigNumber> => {
-	return arbProvider.getBalance(env.faucetWalletAddress)
+	return arbProvider.getBalance(arbWallet.address)
 }
