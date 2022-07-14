@@ -243,7 +243,7 @@ export const processTweet = async  (tweet)=>{
             throw new Error ('Transaction reverted')
         }
         recipientHash[userId] = true
-        const message = `Your Ether has been sent on the nitro-testnet: https://nitro-devnet-explorer.arbitrum.io/tx/${transactionHash}.\r\n\r\n`
+        const message = `Your Ether has been sent on the NEW nitro rollup testnet: https://goerli-rollup-explorer.arbitrum.io/tx/${transactionHash}.\r\n\r\n`
         tweetQueue.addToQueue(message, tweet)
 
     } catch(err){
