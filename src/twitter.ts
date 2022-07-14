@@ -140,7 +140,7 @@ const extractAddress = (str: string): string=> {
 }
 
 const isFaucetRequest = (tweetText: string): boolean=>{
-    return tweetText.toLowerCase().includes("nitro devnet")
+    return tweetText.toLowerCase().includes("nitro devnet") || tweetText.toLowerCase().includes("nitro testnet")
 }
 
 
