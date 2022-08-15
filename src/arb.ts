@@ -53,7 +53,7 @@ export const resetFaucet = (ethValue: ethers.utils.BigNumber, tokenValue: ethers
 export const EOAtransfer = (to: string, nonce?: number) => {
 	return arbWallet.sendTransaction({
 		to,
-		value: ethers.utils.parseEther("0.1"),
+		value: ethers.utils.parseEther("0.001"),
 		nonce
 	})
 }

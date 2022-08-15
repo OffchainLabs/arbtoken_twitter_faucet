@@ -27,7 +27,7 @@ setInterval(()=>{
 // check faucet balance
 setInterval(async ()=>{
     const bal = +ethers.utils.formatEther(await getEthBalance())    
-    if(bal < 50){
+    if(bal < 30){
         const address = await getWalletAddress()
         messageSlack(`Faucet is running low; only has ${bal} Eth left; send Eth to ${address}`)
     }
