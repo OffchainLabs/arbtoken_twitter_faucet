@@ -4,7 +4,10 @@ import env from "../constants";
 const credentials = `${env.consumerKey}:${env.consumerSecret}`;
 const credentialsBase64Encoded =  Buffer.from(credentials).toString('base64');
 
-request({
+
+
+export const getToken = () => {
+  request({
     url: 'https://api.twitter.com/oauth2/token',
     method:'POST',
     headers: {
@@ -19,3 +22,4 @@ request({
   }
   console.info(body); // the bearer token ...
 });
+}
