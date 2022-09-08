@@ -11,6 +11,6 @@ cp .env.smaple env_docker
 ```
 and you shoud edit then start:
 ```
-docker run --name={nitro_faucet} --env-file=./env_docker -d faucet start
+docker run --name={nitro_faucet} --env-file=./env_docker -d faucet --action start
 ```
 
