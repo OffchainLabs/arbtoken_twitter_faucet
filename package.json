@@ -9,13 +9,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "tsc && node dist/index.js",
+    "start": "tsc && node dist/main.js --action start",
     "scrap": "tsc && node dist/v2.js",
-    "get_token": "tsc && node dist/scripts/get_token.js",
+    "get_token": "tsc && node dist/main.js --action get_token",
     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "token_gen": "tsc && node dist/scripts/access_token_gen.js",
+    "token_gen": "tsc && node dist/main.js --action token_gen",
     "devstart": "NODE_ENV=dev yarn start",
-    "transfer": "tsc && node dist/transfer.js"
+    "transfer": "tsc && node dist/main.js --action transfer"
   },
   "author": "",
   "license": "ISC",
@@ -25,7 +25,7 @@
     "@types/express": "types/express",
     "@types/morgan": "^1.9.1",
     "@types/nedb": "^1.8.9",
-    "@types/node": "^13.13.4",
+    "@types/node": "^18.7.18",
     "@types/twitter": "^1.7.0",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@slack/web-api": "^5.13.0",
+    "@types/yargs": "^17.0.12",
     "arb-provider-ethers": "^0.6.4",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
