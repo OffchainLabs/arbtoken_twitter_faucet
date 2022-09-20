@@ -6,13 +6,7 @@ import { transferProcess } from "./transfer"
 import { exit } from 'process'
 import env from "./constants"
 
-//     "start": "tsc && node dist/index.js",
-//     "scrap": "tsc && node dist/v2.js",
-//     "get_token": "tsc && node dist/scripts/get_token.js",
-//     "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-//     "token_gen": "tsc && node dist/scripts/access_token_gen.js",
-//     "devstart": "NODE_ENV=dev yarn start",
-//     "transfer": "tsc && node dist/transfer.js"
+
 const main = async () => {
     switch (argv.action) {
         case "start":
@@ -21,9 +15,6 @@ const main = async () => {
                 exit(1)
             }
             return startFaucetProcess()
-            // "start": "tsc && node dist/index.js",
-            // "get_token": "tsc && node dist/scripts/get_token.js",
-        case "scrap":
 
         case "get_token":
             // `${env.consumerKey}:${env.consumerSecret}`
@@ -38,7 +29,7 @@ const main = async () => {
 
         case "transfer":
             return transferProcess()
-            
+
         default:
             throw new Error("Not a right action value");
     }
