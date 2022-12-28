@@ -50,11 +50,12 @@ export const resetFaucet = (ethValue: ethers.utils.BigNumber, tokenValue: ethers
 	return arbFaucetWallet.updateFaucet(env.tokenAddress, tokenValue, ethValue)
 }
 
-export const EOAtransfer = (to: string, nonce?: number) => {
+export const EOAtransfer = async (to: string, nonce?: number) => {
 	return arbWallet.sendTransaction({
 		to,
 		value: ethers.utils.parseEther("0.001"),
-		nonce
+		nonce,
+		gasPrice: (await arbWallet.provider.getGasPrice()).mul(2)
 	})
 }
 
