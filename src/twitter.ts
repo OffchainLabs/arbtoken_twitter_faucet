@@ -86,6 +86,7 @@ class TweetQueue{
                 console.info(`successfully replied to ${screen_name}: ${this.queue.length} tweets in queue`)
             }).catch((err)=>{
                 console.warn(`error replying to ${screen_name}`, err);
+                err.message ?? messageSlack(`Faucet tweets send failed: ${err.message}`)
             }).finally(this.runQueue)
         }, 2000)
     }
